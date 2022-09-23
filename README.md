@@ -18,8 +18,7 @@ cd devspaces/product &&
 
 ### Configure GitHub OAuth
 
-First create a [GitHub OAuth App](# Create a GitHub OAuth App first https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/#setting-up-the-github-oauth-app_che
-) and than use the following instructions to create a secret and patch the Dev Spaces CheCluster CR:
+First create a [GitHub OAuth App](https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/#setting-up-the-github-oauth-app_che) and then use the following instructions to create a secret and patch the Dev Spaces CheCluster CR:
 ```bash
 export BASE64_GH_OAUTH_CLIENT_ID=<your-id>
 export BASE64_GH_OAUTH_CLIENT_SECRET=<your-secret>
