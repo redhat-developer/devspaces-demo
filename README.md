@@ -31,6 +31,17 @@ $ ./0-configure-gh-oauth.sh
 # This is optional
 ```
 
+### Configure SCC and privileges for Podman build
+```bash
+export OPENSHIFT_USER=<your-username>
+$ ./1-scc-privileges.sh
+```
+
+### Set the default editor to VS Code
+```bash
+kubectl patch checluster devspaces --type=merge -p '{"spec":{"devEnvironments":{"defaultEditor":"che-incubator/che-code/insiders"}}}' -n openshift-devspaces
+```
+
 # Run the demo
 
 ## STEP 1 - Start an IDE with a link (and show the power of URL parameters)
