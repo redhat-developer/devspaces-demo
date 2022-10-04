@@ -1,4 +1,6 @@
 #!/bin/bash
+set -o nounset
+set -o errexit
 
 # Create SCC
 kubectl apply -f - <<EOF
@@ -65,4 +67,5 @@ oc adm policy add-cluster-role-to-user \
        get-n-update-container-build-scc \
        system:serviceaccount:openshift-operators:devworkspace-controller-serviceaccount
 
+# Add the SCC to $OPENSHIFT_USER
 oc adm policy add-scc-to-user container-build ${OPENSHIFT_USER}

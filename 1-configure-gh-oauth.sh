@@ -1,4 +1,6 @@
 #!/bin/bash
+set -o nounset
+set -o errexit
 
 createOAuthSecret() {
 cat << EOF | kubectl apply -f -
