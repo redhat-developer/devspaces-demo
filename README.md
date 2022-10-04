@@ -22,24 +22,37 @@ First create a [GitHub OAuth App](https://www.eclipse.org/che/docs/stable/admini
 ```bash
 export BASE64_GH_OAUTH_CLIENT_ID=<your-id>
 export BASE64_GH_OAUTH_CLIENT_SECRET=<your-secret>
-$ ./0-configure-gh-oauth.sh
+./1-configure-gh-oauth.sh
 ```
 
-### Create a few OCP users (besides kubeadmin)
+### Create a few unprivileged OCP users (besides kubeadmin)
 
 ```bash
 # This is optional
+export OPENSHIFT_USER=<your-username>
+export OPENSHIFT_PASSWORD=<your-password>
+./2-create-unprivileged-user.sh
 ```
 
 ### Configure SCC and privileges for Podman build
 ```bash
 export OPENSHIFT_USER=<your-username>
-$ ./1-scc-privileges.sh
+./3-create-container-build-scc.sh
 ```
 
 ### Set the default editor to VS Code
 ```bash
-kubectl patch checluster devspaces --type=merge -p '{"spec":{"devEnvironments":{"defaultEditor":"che-incubator/che-code/insiders"}}}' -n openshift-devspaces
+kubectl patch checluster devspaces \
+  --type=merge -p \
+  '{"spec":{"devEnvironments":{"defaultEditor":"che-incubator/che-code/insiders"}}}' \
+  -n openshift-devspaces
+```
+
+### Use the latest upstream DevWorkspace
+```bash
+# This is required because of an issue with the current 
+# DW operator version bundled with nightly Dev Spaces
+./4-patch-dw-subcription.sh
 ```
 
 # Run the demo
