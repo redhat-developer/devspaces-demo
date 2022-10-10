@@ -48,6 +48,23 @@ kubectl patch checluster devspaces \
   -n openshift-devspaces
 ```
 
+or, to get the upstream VS Code...
+
+```bash
+kubectl patch checluster devspaces \
+  --type=merge -p \
+  '{"spec":{"devEnvironments":{"defaultEditor":"https://raw.githubusercontent.com/l0rd/devworkspace-demo/container-contributions/vs-code.yml"}}}' \
+  -n openshift-devspaces
+```
+
+### Set the default dev image to be the one published on quay.io
+```bash
+kubectl patch checluster devspaces \
+  --type=merge -p \
+  '{"spec":{"devEnvironments":{"defaultComponents":[{"name": "universal-developer-image", "container": {"image": "quay.io/devspaces/udi-rhel8:3.1"}}]}}}' \
+  -n openshift-devspaces
+```
+
 ### Use the latest upstream DevWorkspace
 ```bash
 # This is required because of an issue with the current 
