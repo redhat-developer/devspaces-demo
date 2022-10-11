@@ -4,72 +4,47 @@
 
 # Preparation
 
-### Install Dev Spaces next
+Git clone this repository and run following commands locally or from a Dev Spaces development environemnt ([developer sandbox](https://workspaces.openshift.com/#https://github.com/che-incubator/devspaces-demo) or [dogfooding instance](https://che-dogfooding.apps.che-dev.x6e0.p1.openshiftapps.com/#https://github.com/che-incubator/devspaces-demo)).
 
-To deploy Dev Spaces next (early release builds) we use `installDevSpacesFromLatestIIB.sh` (in the short term we should be able to use `dsc`).
-
-Before running this script `oc`, `jq` and `git` should be pre-installed and you should be logged in as an admin to the OpenShift cluster.
+Pre-requisites: `oc`, `jq` and `git` should be pre-installed and you should be logged in as an admin of the target OpenShift cluster.
 
 ```bash
-git clone https://github.com/redhat-developer/devspaces.git && \
+# STEP 0: Install Dev Spaces next
+git -C devspaces checkout devspaces-3-rhel-8 &&
 cd devspaces/product &&
 ./installDevSpacesFromLatestIIB.sh --next
-```
 
-### Configure GitHub OAuth
-
-First create a [GitHub OAuth App](https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/#setting-up-the-github-oauth-app_che) and then use the following instructions to create a secret and patch the Dev Spaces CheCluster CR:
-```bash
-export BASE64_GH_OAUTH_CLIENT_ID=<your-id>
-export BASE64_GH_OAUTH_CLIENT_SECRET=<your-secret>
+# STEP 1: Configure GitHub OAuth (c.f. https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/#setting-up-the-github-oauth-app_che
+# export BASE64_GH_OAUTH_CLIENT_ID=<your-id>
+# export BASE64_GH_OAUTH_CLIENT_SECRET=<your-secret>
 ./1-configure-gh-oauth.sh
-```
 
-### Create a few unprivileged OCP users (besides kubeadmin)
-
-```bash
-# This is optional
-export OPENSHIFT_USER=<your-username>
-export OPENSHIFT_PASSWORD=<your-password>
+# STEP 2: Create an OpenShift unprivileged user (can be skipped if such a user already exist)
+# export OPENSHIFT_USER=<your-username>
+# export OPENSHIFT_PASSWORD=<your-password>
 ./2-create-unprivileged-user.sh
-```
 
-### Configure SCC and privileges for Podman build
-```bash
-export OPENSHIFT_USER=<your-username>
+# STEP 3: Configure Dev Spaces for container build (c.f. https://che.eclipseprojects.io/2022/10/10/@mloriedo-building-container-images.html
 ./3-create-container-build-scc.sh
-```
 
-### Set the default editor to VS Code
-```bash
-kubectl patch checluster devspaces \
-  --type=merge -p \
-  '{"spec":{"devEnvironments":{"defaultEditor":"che-incubator/che-code/insiders"}}}' \
-  -n openshift-devspaces
-```
-
-or, to get the upstream VS Code...
-
-```bash
-kubectl patch checluster devspaces \
-  --type=merge -p \
-  '{"spec":{"devEnvironments":{"defaultEditor":"https://raw.githubusercontent.com/l0rd/devworkspace-demo/container-contributions/vs-code.yml"}}}' \
-  -n openshift-devspaces
-```
-
-### Set the default dev image to be the one published on quay.io
-```bash
-kubectl patch checluster devspaces \
-  --type=merge -p \
-  '{"spec":{"devEnvironments":{"defaultComponents":[{"name": "universal-developer-image", "container": {"image": "quay.io/devspaces/udi-rhel8:3.1"}}]}}}' \
-  -n openshift-devspaces
-```
-
-### Use the latest upstream DevWorkspace
-```bash
-# This is required because of an issue with the current 
-# DW operator version bundled with nightly Dev Spaces
+# STEP 4: Use upstream nightly DevWorkspace operator build
 ./4-patch-dw-subcription.sh
+
+# STEP 5: Change the default IDE to be upstream VS Code
+export IDE_DEFINITION="https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-code/insiders/devfile.yaml"
+./5-change-default-ide.sh
+
+# STEP 6: Change default component image to be the UDI from quay.io
+export UDI_IMAGE="quay.io/devspaces/udi-rhel8:3.1"
+./6-change-default-component.sh
+
+# STEP 7: Setup the image puller
+# export DEVELOPER_NAMESPACE="${OPENSHIFT_USER}-devspaces"
+# export DEVSPACES_HOST=<devspaces-hostname>
+./7-image-puller-setup.sh
+
+# STEP 8: Disable workspace idling
+./8-disable-workspace-idling.sh
 ```
 
 # Run the demo
