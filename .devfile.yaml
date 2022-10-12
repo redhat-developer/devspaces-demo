@@ -53,7 +53,7 @@ commands:
   - id: 6-change-default-component
     exec:
       component: tooling-container
-      commandLine: ./6-change-default-componennt.sh
+      commandLine: ./6-change-default-component.sh
   - id: 7-setup-the-image-puller
     exec:
       component: tooling-container
