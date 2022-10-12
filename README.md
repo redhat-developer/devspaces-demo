@@ -4,7 +4,7 @@
 
 # Preparation
 
-Git clone this repository and run following commands locally or from a Dev Spaces development environemnt ([developer sandbox](https://workspaces.openshift.com/#https://github.com/che-incubator/devspaces-demo) or [dogfooding instance](https://che-dogfooding.apps.che-dev.x6e0.p1.openshiftapps.com/#https://github.com/che-incubator/devspaces-demo)).
+Git clone this repository and run following commands locally or from a Dev Spaces development environment ([developer sandbox](https://workspaces.openshift.com/#https://github.com/che-incubator/devspaces-demo) or [dogfooding instance](https://che-dogfooding.apps.che-dev.x6e0.p1.openshiftapps.com/#https://github.com/che-incubator/devspaces-demo)).
 
 Pre-requisites: `oc`, `jq` and `git` should be pre-installed and you should be logged in as an admin of the target OpenShift cluster.
 
