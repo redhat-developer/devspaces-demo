@@ -7,8 +7,8 @@ components:
       image: quay.io/devfile/universal-developer-image:ubi8-latest
       memoryRequest: 256M
       memoryLimit: 1536M
-      cpuRequest: 0.1
-      cpuLimit: 0.5
+      cpuRequest: 100m
+      cpuLimit: 500m
 commands:
   - id: update-devspaces-submodule
     exec:
