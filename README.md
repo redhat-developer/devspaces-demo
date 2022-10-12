@@ -10,6 +10,7 @@ Pre-requisites: `oc`, `jq` and `git` should be pre-installed and you should be l
 
 ```bash
 # STEP 0: Install Dev Spaces next
+git submodule update --init &&
 git -C devspaces checkout devspaces-3-rhel-8 &&
 cd devspaces/product &&
 ./installDevSpacesFromLatestIIB.sh --next
