@@ -1,0 +1,64 @@
+schemaVersion: 2.1.0
+metadata:
+  name: devspaces-demo
+components:
+  - name: tooling-container
+    container:
+      image: quay.io/devfile/universal-developer-image:ubi8-latest
+      memoryRequest: 256M
+      memoryLimit: 1536M
+      cpuRequest: 100m
+      cpuLimit: 500m
+commands:
+  - id: update-devspaces-submodule
+    exec:
+      component: tooling-container
+      commandLine: git -C devspaces checkout devspaces-3-rhel-8
+  - id: 0-deploy-devspaces
+    exec:
+      component: tooling-container
+      commandLine: ./installDevSpacesFromLatestIIB.sh --next
+      workingDir: ${PROJECT_SOURCE}/devspaces/product
+  - id: 1-configure-gh-oauth
+    exec:
+      component: tooling-container
+      commandLine: ./1-configure-gh-oauth.sh
+  - id: 2-create-unprivilege-user
+    exec:
+      component: tooling-container
+      commandLine: ./2-create-unprivileged-user.sh
+      env:
+        - name: OPENSHIFT_USER
+          value: janedoe
+        - name: OPENSHIFT_PASSWORD
+          value: janedoe
+  - id: 3-create-container-build-scc
+    exec:
+      component: tooling-container
+      commandLine: ./3-create-container-build-scc.sh
+      env:
+        - name: OPENSHIFT_USER
+          value: janedoe
+  - id: 4-patch-dw-subscription
+    exec:
+      component: tooling-container
+      commandLine: ./4-patch-dw-subcription.sh
+  - id: 5-change-default-ide
+    exec:
+      component: tooling-container
+      commandLine: ./5-change-default-ide.sh
+      env:
+        - name: IDE_DEFINITION
+          value: https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-code/insiders/devfile.yaml
+  - id: 6-change-default-component
+    exec:
+      component: tooling-container
+      commandLine: ./6-change-default-component.sh
+  - id: 7-setup-the-image-puller
+    exec:
+      component: tooling-container
+      commandLine: ./7-image-puller-setup.sh
+  - id: 8-disable-workspace-idling
+    exec:
+      component: tooling-container
+      commandLine: ./8-disable-workspace-idling.sh

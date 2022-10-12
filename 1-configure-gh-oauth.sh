@@ -2,6 +2,16 @@
 set -o nounset
 set -o errexit
 
+if [ -z ${BASE64_GH_OAUTH_CLIENT_ID+x} ]; then 
+  echo "Error: BASE64_GH_OAUTH_CLIENT_ID is unset"
+  exit 1
+fi
+
+if [ -z ${BASE64_GH_OAUTH_CLIENT_SECRET+x} ]; then 
+  echo "Error: BASE64_GH_OAUTH_CLIENT_SECRET is unset"
+  exit 1
+fi
+
 createOAuthSecret() {
 cat << EOF | kubectl apply -f -
   kind: Secret
