@@ -10,9 +10,8 @@ Pre-requisites: `oc`, `jq` and `git` should be pre-installed and you should be l
 
 ```bash
 # STEP 0: Install Dev Spaces next
-git -C devspaces checkout devspaces-3-rhel-8 &&
-cd devspaces/product &&
-./installDevSpacesFromLatestIIB.sh --next
+git submodule init && git submodule update && git -C devspaces checkout devspaces-3-rhel-8 &&
+cd devspaces/product && ./installDevSpacesFromLatestIIB.sh --next
 
 # STEP 1: Configure GitHub OAuth (c.f. https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/#setting-up-the-github-oauth-app_che
 # export BASE64_GH_OAUTH_CLIENT_ID=<your-id>

@@ -2,6 +2,8 @@
 set -o nounset
 set -o errexit
 
+OPENSHIFT_USER=${OPENSHIFT_USER:-janedoe}
+
 # Create SCC
 kubectl apply -f - <<EOF
 apiVersion: security.openshift.io/v1
