@@ -20,7 +20,7 @@ spec:
 EOF
 
 # Patch the DevWorkspace operator subscription to use the upstream catalog source
-SUB_NAME="devworkspace-operator-fast-iib-testingdevspaces-openshift-operators"
+SUB_NAME="devworkspace-operator-fast-devspaces-fast-openshift-operators"
 SUB_NS="openshift-operators"
 kubectl patch subscription "${SUB_NAME}" -n "${SUB_NS}" \
   --type=merge -p \

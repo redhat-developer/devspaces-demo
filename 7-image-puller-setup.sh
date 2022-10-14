@@ -62,6 +62,9 @@ for ((i = 0; i < ${#IMAGES[@]}; ++i)); do
 done
 echo "${IMAGES_LIST}"
 
+echo "Wait one minute for the Kubernetes Image Puller Operator to be up and running."
+sleep 60
+
 # Create or patch a KubernetesImagePuller CR with images: "${IMAGES_LIST}"
 kubectl apply -f - <<EOF
 apiVersion: che.eclipse.org/v1alpha1
