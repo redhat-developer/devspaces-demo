@@ -82,7 +82,7 @@ Once Dev Spaces has been authorized to get access to GitHub information:
 - Build and push the application image to the OpenShift local registry by running the commands from the following tasks in this order: `Build Image`, `Login to local OpenShift registry`, `Push Image`.
 - Deploy the application (Deployments, Services, etc.) with `oc apply -f template/app.yaml`
 - Test the `/food` GET endpoint by running `curl -i quarkus-api-example/food` which returns all resources from the PostgreSQL database.
-- To deploy and test subsequent changes users can `Package`, `Build Image`, `Login to local OpenShift registry`, `Push Image` again, then run `oc rollout restart deploy quakrus-api-example`
+- To deploy and test subsequent changes users can run `Package`, `Build Image`, `Push Image` again, then run `oc rollout restart deploy quakrus-api-example`
 
 This example shows ability to build, package, deploy and test applications from within the workspace.
 
@@ -111,7 +111,7 @@ This example shows ability to build, package, deploy and test applications from 
 - To run the application, run the command from the `Start Development mode (Hot reload + debug)` task. This runs a Maven goal that runs the Quarkus project in [Dev mode](https://quarkus.io/guides/getting-started#development-mode).
 - Verify that the application is running by clicking `Open` on the `Listening on port 8080` VS Code notification.
 
-This example shows that dependencies needed development (in this case, the PostgreSQL database) is available within the workspace pod by adding new components in the devfile.
+This example shows that dependencies needed for development (in this case, the PostgreSQL database) is available within the workspace pod by adding new components in the devfile.
 
 ## STEP 5 - Restricted network support (optional)
 
