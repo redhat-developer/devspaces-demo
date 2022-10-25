@@ -10,55 +10,59 @@ components:
       cpuRequest: 100m
       cpuLimit: 500m
 commands:
-  - id: update-devspaces-submodule
+  - id: 1-login
     exec:
+      label: "1 PREP TASKS - 1: Login into the cluster where you want to deploy Dev Spaces"
       component: tooling-container
-      commandLine: git submodule init && git submodule update && git -C devspaces checkout devspaces-3-rhel-8
-  - id: 0-deploy-devspaces
+      commandLine: |
+        read -p "ENTER the target cluster URL (e.g. https://api.mloriedo-devworkspaces.devcluster.openshift.com:6443): " API_URL &&
+        read -p "ENTER an admin API token (e.g. sha256~RJcIikEKqmhQdle3LQL5TNwxwGoEBTOkvBYxJx0jOnU): " API_TOKEN &&
+        oc login --token=${API_TOKEN} --server=${API_URL}
+  - id: 2-deploy-devspaces
     exec:
+      label: "1 PREP TASKS - 2: Deploy dev (unstable) build of Dev Spaces"
       component: tooling-container
-      commandLine: ./installDevSpacesFromLatestIIB.sh --next
-      workingDir: ${PROJECT_SOURCE}/devspaces/product
-  - id: 1-configure-gh-oauth
+      commandLine: | 
+        git submodule init && git submodule update && \
+        git -C devspaces checkout devspaces-3-rhel-8 && \
+        cd devspaces/product && \
+        ./installDevSpacesFromLatestIIB.sh --next
+  - id: 3-configure-container-build
     exec:
+      label: "2 TEMP TASKS - 1: Setup the cluster to allow container builds"
       component: tooling-container
-      commandLine: ./1-configure-gh-oauth.sh
-  - id: 2-create-unprivilege-user
+      commandLine: ./2-create-unprivileged-user.sh &&
+        ./3-create-container-build-scc.sh
+  - id: 4-disable-workspace-idling
     exec:
-      component: tooling-container
-      commandLine: ./2-create-unprivileged-user.sh
-      env:
-        - name: OPENSHIFT_USER
-          value: janedoe
-        - name: OPENSHIFT_PASSWORD
-          value: janedoe
-  - id: 3-create-container-build-scc
-    exec:
-      component: tooling-container
-      commandLine: ./3-create-container-build-scc.sh
-      env:
-        - name: OPENSHIFT_USER
-          value: janedoe
-  - id: 4-patch-dw-subscription
-    exec:
-      component: tooling-container
-      commandLine: ./4-patch-dw-subcription.sh
-  - id: 5-change-default-ide
-    exec:
-      component: tooling-container
-      commandLine: ./5-change-default-ide.sh
-      env:
-        - name: IDE_DEFINITION
-          value: https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-code/insiders/devfile.yaml
-  - id: 6-change-default-component
-    exec:
-      component: tooling-container
-      commandLine: ./6-change-default-component.sh
-  - id: 7-setup-the-image-puller
-    exec:
-      component: tooling-container
-      commandLine: ./7-image-puller-setup.sh
-  - id: 8-disable-workspace-idling
-    exec:
+      label: "3 OPT TASKS - 1: Disable workspace idling"
       component: tooling-container
       commandLine: ./8-disable-workspace-idling.sh
+  - id: 5-configure-gh-oauth
+    exec:
+      label: "3 OPT TASKS - 2: Configure GitHub OAuth"
+      component: tooling-container
+      commandLine: |
+        read -p "ENTER Base64 GitHub OAuth Client ID: " BASE64_GH_OAUTH_CLIENT_ID &&
+        read -p "ENTER Base64 GitHub OAuth Client Secret: " BASE64_GH_OAUTH_CLIENT_SECRET &&
+        ./1-configure-gh-oauth.sh
+  - id: 6-setup-the-image-puller
+    exec:
+      label: "3 OPT TASKS - 3: Enable and configure the image puller (start a sample workspace first)"
+      component: tooling-container
+      commandLine: ./7-image-puller-setup.sh
+  - id: 7-use-upstream-vscode
+    exec:
+      label: "3 OPT TASKS - 4: Set upstream VS Code as the default editor"
+      component: tooling-container
+      commandLine: ./5-change-default-ide.sh
+  - id: 8-use-upstream-udi
+    exec:
+      label: "3 OPT TASKS - 5: Set upstream UDI as the default image"
+      component: tooling-container
+      commandLine: ./6-change-default-component.sh
+  - id: 9-patch-dw-subscription
+    exec:
+      label: "3 OPT TASKS - 6: Use upstream DevWorkspace operator"
+      component: tooling-container
+      commandLine: ./4-patch-dw-subcription.sh
