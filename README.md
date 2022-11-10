@@ -19,23 +19,26 @@ Pre-requisites: `oc`, `jq` and `git` should be pre-installed and you should be l
 git submodule init && git submodule update && git -C devspaces checkout devspaces-3-rhel-8 &&
 cd devspaces/product && ./installDevSpacesFromLatestIIB.sh --next
 
-# STEP 1: Configure GitHub OAuth (c.f. https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/#setting-up-the-github-oauth-app_che
+# STEP 1: Configure GitHub OAuth (optional)
+# c.f. https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/#setting-up-the-github-oauth-app_che
 # export BASE64_GH_OAUTH_CLIENT_ID=<your-id>
 # export BASE64_GH_OAUTH_CLIENT_SECRET=<your-secret>
 ./1-configure-gh-oauth.sh
 
-# STEP 2: Create an OpenShift unprivileged user (can be skipped if such a user already exist)
+# STEP 2: Create an OpenShift unprivileged user (can be skipped if such a user already exist) 
 # export OPENSHIFT_USER=<your-username>
 # export OPENSHIFT_PASSWORD=<your-password>
 ./2-create-unprivileged-user.sh
 
-# STEP 3: Configure Dev Spaces for container build (c.f. https://che.eclipseprojects.io/2022/10/10/@mloriedo-building-container-images.html
+# STEP 3: Configure Dev Spaces for container build (required to be able to run `podman build`)
+# c.f. https://che.eclipseprojects.io/2022/10/10/@mloriedo-building-container-images.html
+# Needed until this issue get addressed https://github.com/eclipse/che/issues/21764 
 ./3-create-container-build-scc.sh
 
-# STEP 4: Use upstream nightly DevWorkspace operator build
+# STEP 4: Use upstream nightly DevWorkspace operator build (optional to get the latest DWO build from main branch)
 ./4-patch-dw-subcription.sh
 
-# STEP 5: Change the default IDE to be upstream VS Code
+# STEP 5: Change the default IDE to be upstream VS Code (optional to get the latest VS Code build from main branch)
 export IDE_DEFINITION="https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-code/insiders/devfile.yaml"
 ./5-change-default-ide.sh
 
@@ -43,12 +46,15 @@ export IDE_DEFINITION="https://eclipse-che.github.io/che-plugin-registry/main/v3
 export UDI_IMAGE="quay.io/devspaces/udi-rhel8:3.3"
 ./6-change-default-component.sh
 
-# STEP 7: Setup the image puller
-# export DEVELOPER_NAMESPACE="${OPENSHIFT_USER}-devspaces"
-# export DEVSPACES_HOST=<devspaces-hostname>
+# STEP 7: Setup the image puller (optional to make a worksapce startup faster)
+# export DEVELOPER_NAMESPACE="${OPENSHIFT_USER}-devspaces" <== if this is set the script will look for a workspace in that namespace and
+#                                                              include the workspace container images in the images to pre-pull. That
+#                                                              requires that a workspace is up and running when running the script.
+# export DEVSPACES_HOST=<devspaces-hostname>               <== if this is set the script will look for images to pre-pull in 
+#                                                               https://${DEVSPACES_HOST}/plugin-registry/v3/external_images.txt
 ./7-image-puller-setup.sh
 
-# STEP 8: Disable workspace idling
+# STEP 8: Disable workspace idling (optional but recommended to run demos)
 ./8-disable-workspace-idling.sh
 ```
 
@@ -116,6 +122,8 @@ This example shows that dependencies needed for development (in this case, the P
 ## STEP 5 - Restricted network support (optional)
 
 ## STEP 6 - Image puller / ephemeral storage for faster workspaces startup (optional)
+
+## STEP 7 - Monitoring
 
 # Cleanup
 
