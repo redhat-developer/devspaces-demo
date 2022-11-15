@@ -90,7 +90,7 @@ Once Dev Spaces has been authorized to get access to GitHub information:
 - Build and push the application image to the OpenShift local registry by running the commands from the following tasks in this order: `Build Image`, `Login to local OpenShift registry`, `Push Image`.
 - Deploy the application (Deployments, Services, etc.) with `oc apply -f template/app.yaml`
 - Test the `/food` GET endpoint by running `curl -i quarkus-api-example/food` which returns all resources from the PostgreSQL database.
-- To deploy and test subsequent changes users can run `Package`, `Build Image`, `Push Image` again, then run `oc rollout restart deploy quakrus-api-example`
+- To deploy and test subsequent changes users can run `Package`, `Build Image`, `Push Image` again, then run `oc rollout restart deploy quarkus-api-example`
 
 This example shows ability to build, package, deploy and test applications from within the workspace.
 
