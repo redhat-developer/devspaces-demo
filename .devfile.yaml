@@ -10,59 +10,60 @@ components:
       cpuRequest: 100m
       cpuLimit: 500m
 commands:
-  - id: 1-login
+  - id: 1-deploy-devspaces
     exec:
-      label: "1 PREP TASKS - 1: Login into the cluster where you want to deploy Dev Spaces"
+      label: "1. Deploy nightly build of Dev Spaces"
+      component: tooling-container
+      commandLine: | 
+        [[ "$(oc whoami)" =~ ^kube:admin$ ]] || (echo "You need to login as kubeadmin" && false) &&
+        git submodule init && git submodule update && \
+        git -C devspaces checkout devspaces-3-rhel-8 && \
+        cd devspaces/product && \
+        ./installDevSpacesFromLatestIIB.sh --next
+  - id: 2-day1-configs
+    exec:
+      label: "2. Create users, change inactivity timeout and enable container build capabilities, GitHub OAuth and image puller"
+      component: tooling-container
+      commandLine:  | 
+        [[ "$(oc whoami)" =~ ^kube:admin$ ]] || (echo "You need to login as kubeadmin" && false) &&
+        OPENSHIFT_USER=johndoe OPENSHIFT_PASSWORD=johndoe ./1-create-unprivileged-user.sh &&
+        OPENSHIFT_USER=janeroe OPENSHIFT_PASSWORD=janeroe ./1-create-unprivileged-user.sh &&
+        OPENSHIFT_USER=gopher OPENSHIFT_PASSWORD=gopher ./1-create-unprivileged-user.sh && 
+        OPENSHIFT_USER=duke OPENSHIFT_PASSWORD=duke ./1-create-unprivileged-user.sh && 
+        OPENSHIFT_USER=phippy OPENSHIFT_PASSWORD=phippy ./1-create-unprivileged-user.sh &&
+        ./2-disable-workspace-idling.sh &&
+        ./3-enable-container-build.sh &&
+        read -p "ENTER Base64 GitHub OAuth Client ID: " BASE64_GH_OAUTH_CLIENT_ID &&
+        read -p "ENTER Base64 GitHub OAuth Client Secret: " BASE64_GH_OAUTH_CLIENT_SECRET &&
+        export BASE64_GH_OAUTH_CLIENT_ID &&
+        export BASE64_GH_OAUTH_CLIENT_SECRET &&
+        ./4-configure-gh-oauth.sh &&
+        ./5-enable-image-puller.sh
+  - id: 3-configure-the-image-puller
+    exec:
+      label: "3. Configure the image puller (expects a running workspace in johndoe namespace)"
+      component: tooling-container
+      commandLine: ./configure-image-puller.sh
+  - id: 4-login
+    exec:
+      label: "(optional): Login into the cluster where you want to deploy Dev Spaces"
       component: tooling-container
       commandLine: |
         read -p "ENTER the target cluster URL (e.g. https://api.mloriedo-devworkspaces.devcluster.openshift.com:6443): " API_URL &&
         read -p "ENTER an admin API token (e.g. sha256~RJcIikEKqmhQdle3LQL5TNwxwGoEBTOkvBYxJx0jOnU): " API_TOKEN &&
         oc login --token=${API_TOKEN} --server=${API_URL}
-  - id: 2-deploy-devspaces
+  - id: 5-use-upstream-vscode
     exec:
-      label: "1 PREP TASKS - 2: Deploy dev (unstable) build of Dev Spaces"
+      label: "(optonal) Use upstream VS Code"
       component: tooling-container
-      commandLine: | 
-        git submodule init && git submodule update && \
-        git -C devspaces checkout devspaces-3-rhel-8 && \
-        cd devspaces/product && \
-        ./installDevSpacesFromLatestIIB.sh --next
-  - id: 3-configure-container-build
+      commandLine: ./change-default-ide.sh
+  - id: 6-use-upstream-udi
     exec:
-      label: "2 TEMP TASKS - 1: Setup the cluster to allow container builds"
+      label: "(optonal) Set upstream UDI as default"
       component: tooling-container
-      commandLine: ./2-create-unprivileged-user.sh &&
-        ./3-create-container-build-scc.sh
-  - id: 4-disable-workspace-idling
+      commandLine: ./change-default-component.sh
+  - id: 7-patch-dw-subscription
     exec:
-      label: "3 OPT TASKS - 1: Disable workspace idling"
+      label: "(optional) Use upstream DevWorkspace operator"
       component: tooling-container
-      commandLine: ./8-disable-workspace-idling.sh
-  - id: 5-configure-gh-oauth
-    exec:
-      label: "3 OPT TASKS - 2: Configure GitHub OAuth"
-      component: tooling-container
-      commandLine: |
-        read -p "ENTER Base64 GitHub OAuth Client ID: " BASE64_GH_OAUTH_CLIENT_ID &&
-        read -p "ENTER Base64 GitHub OAuth Client Secret: " BASE64_GH_OAUTH_CLIENT_SECRET &&
-        ./1-configure-gh-oauth.sh
-  - id: 6-setup-the-image-puller
-    exec:
-      label: "3 OPT TASKS - 3: Enable and configure the image puller (start a sample workspace first)"
-      component: tooling-container
-      commandLine: ./7-image-puller-setup.sh
-  - id: 7-use-upstream-vscode
-    exec:
-      label: "3 OPT TASKS - 4: Set upstream VS Code as the default editor"
-      component: tooling-container
-      commandLine: ./5-change-default-ide.sh
-  - id: 8-use-upstream-udi
-    exec:
-      label: "3 OPT TASKS - 5: Set upstream UDI as the default image"
-      component: tooling-container
-      commandLine: ./6-change-default-component.sh
-  - id: 9-patch-dw-subscription
-    exec:
-      label: "3 OPT TASKS - 6: Use upstream DevWorkspace operator"
-      component: tooling-container
-      commandLine: ./4-patch-dw-subcription.sh
+      commandLine: ./patch-dw-subcription.sh

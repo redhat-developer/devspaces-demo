@@ -5,7 +5,7 @@ set -o errexit
 USER=${OPENSHIFT_USER:-janedoe}
 PASSWORD=${OPENSHIFT_PASSWORD:-janedoe}
 HTPASSWD_FILE="/tmp/crwhtpasswd"
-htpasswd -cbB ${HTPASSWD_FILE} $USER $PASSWORD
+[[ -f "$HTPASSWD_FILE" ]] && htpasswd -bB ${HTPASSWD_FILE} $USER $PASSWORD || htpasswd -cbB ${HTPASSWD_FILE} $USER $PASSWORD 
 htpwd_encoded="$(cat $HTPASSWD_FILE | base64 -w 0)"
 
 cat <<EOF | oc apply -f -
