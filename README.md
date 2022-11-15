@@ -77,6 +77,13 @@ Once Dev Spaces has been authorized to get access to GitHub information:
 - Opening a private repository works out of the box
 - `git commit && git push` works out of the box
 
+NOTE: The GitHub OAuth prompt will appear when starting a workspace with a GitHub repository in STEP 1.
+
+NOTE: After accepting the OAuth prompt, to reset the OAuth flow so that the prompt appears again:
+
+1. Delete the `devworkspace-merged-git-credentials`, `git-credentials-secret-*`, and `personal-access-token-*` secrets in the user namespace
+2. Go to `https://github.com/settings/applications`, and revoke access for the OAuth app
+
 ## STEP 3 - Test your application on Kubernetes (no need to oc login)
 
 - `oc apply -f deployment.yaml` works out of the box to test the application
