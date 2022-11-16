@@ -19,13 +19,17 @@ data:
   htpasswd: ${htpwd_encoded}
 EOF
 
-kubectl patch oauths cluster --type merge -p '
-spec:
-  identityProviders:
-    - name: htpasswd
-      mappingMethod: claim
-      type: HTPasswd
-      htpasswd:
-        fileData:
-          name: htpass-secret
-'
+kubectl patch oauth cluster --type='json' -p '[
+  {
+    "op":"add","path":"/spec/identityProviders/1",
+    "value":{
+      "name":"htpasswd",
+      "mappingMethod":"claim",
+      "type":"HTPasswd",
+      "htpasswd":
+        {"fileData":
+          {"name":"htpass-secret"}
+        }
+    }
+  }
+]'
