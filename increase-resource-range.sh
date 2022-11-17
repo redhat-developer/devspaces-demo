@@ -9,7 +9,7 @@ fi
 
 # Set container and pod memory limit to NEW_LIMIT
 NEW_LIMIT="16Gi"
-N_LIMIT_RANGE=$(kubectl get limits -n opentlc-mgr-che --no-headers | wc -l)
+N_LIMIT_RANGE=$(kubectl get limits -n $USER_NAMESPACE --no-headers | wc -l)
 
 if [[ $N_LIMIT_RANGE -eq 0 ]]; then
   echo "There are no LimitRanges."
@@ -21,7 +21,7 @@ if [[ $N_LIMIT_RANGE -gt 1 ]]; then
   exit 0
 fi
 
-LIMIT_RANGE=$(kubectl get limits -n opentlc-mgr-che --no-headers -o custom-columns=":metadata.name")
+LIMIT_RANGE=$(kubectl get limits -n $USER_NAMESPACE --no-headers -o custom-columns=":metadata.name")
 
 PATCH="{\"spec\":{\"limits\":[{\"type\":\"Container\",\"max\":{\"cpu\":\"4\",\"memory\":\"${NEW_LIMIT}\"}},{\"type\":\"Pod\",\"max\":{\"cpu\":\"4\",\"memory\":\"${NEW_LIMIT}\"}}]}}"
 
