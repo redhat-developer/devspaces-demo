@@ -12,8 +12,8 @@ echo "There are ${#IMAGES[@]} default images to pull"
 DEFAULT_DEVSPACES_HOSTNAME="devspaces.apps."$(kubectl cluster-info | head -1 |  sed -e 's|^[^/]*//api\.||' -e 's|:.*$||')
 DEVSPACES_HOSTNAME=${DEVSPACES_HOSTNAME:-${DEFAULT_DEVSPACES_HOSTNAME}}
 
-echo "Retrieving external images from https://${DEVSPACES_HOST}/plugin-registry/v3/external_images.txt"
-EXTERNAL_IMAGES=($(curl -k -sSL https://${DEVSPACES_HOST}/plugin-registry/v3/external_images.txt))
+echo "Retrieving external images from https://${DEVSPACES_HOSTNAME}/plugin-registry/v3/external_images.txt"
+EXTERNAL_IMAGES=($(curl -k -sSL https://${DEVSPACES_HOSTNAME}/plugin-registry/v3/external_images.txt))
 IMAGES=( "${IMAGES[@]}" "${EXTERNAL_IMAGES[@]}" )
 echo "Found ${#EXTERNAL_IMAGES[@]} external images for a total of ${#IMAGES[@]}"
 
