@@ -60,6 +60,13 @@ export UDI_IMAGE="quay.io/devspaces/udi-rhel8:3.3"
 ./patch-dw-subcription.sh
 ```
 
+Depending on the cluster setup, if a `LimitRange` exists in the user namespace, you may have to adjust user namespace resource quotas to start workspaces with VS Code and IntelliJ:
+
+```
+export USER_NAMESPACE="USER NAMESPACE HERE"
+./increase-namepsace-quotas.sh
+```
+
 # Run the demo
 
 For STEP 3 and STEP 4, this [demo microservice project](https://github.com/dkwon17/quarkus-api-example/tree/devspaces) can be forked and used. When forking, confirm that the `devspaces` branch is copied to the fork.
