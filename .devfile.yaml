@@ -41,12 +41,12 @@ commands:
         ./5-enable-image-puller.sh
   - id: 3-configure-the-image-puller
     exec:
-      label: "3. Configure the image puller (expects a running workspace in johndoe namespace)"
+      label: "3. Configure the image puller (⚠️ start the workspace in johndoe namespace before running)"
       component: tooling-container
       commandLine: ./configure-image-puller.sh
   - id: 4-login
     exec:
-      label: "(optional): Login into the cluster where you want to deploy Dev Spaces"
+      label: "OPTIONAL - Login into the cluster where you want to deploy Dev Spaces"
       component: tooling-container
       commandLine: |
         read -p "ENTER the target cluster URL (e.g. https://api.mloriedo-devworkspaces.devcluster.openshift.com:6443): " API_URL &&
@@ -54,16 +54,16 @@ commands:
         oc login --token=${API_TOKEN} --server=${API_URL}
   - id: 5-use-upstream-vscode
     exec:
-      label: "(optonal) Use upstream VS Code"
+      label: "OPTIONAL - Use upstream VS Code"
       component: tooling-container
       commandLine: ./change-default-ide.sh
   - id: 6-use-upstream-udi
     exec:
-      label: "(optonal) Set upstream UDI as default"
+      label: "OPTIONAL - Set upstream UDI as default"
       component: tooling-container
       commandLine: ./change-default-component.sh
   - id: 7-patch-dw-subscription
     exec:
-      label: "(optional) Use upstream DevWorkspace operator"
+      label: "OPTIONAL - Use upstream DevWorkspace operator"
       component: tooling-container
       commandLine: ./patch-dw-subcription.sh
