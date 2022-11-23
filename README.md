@@ -10,15 +10,24 @@ Pre-requisites: `oc`, `jq` and `git` should be pre-installed and you should be l
 
 | :warning: WARNING                                                                                     |
 |-------------------------------------------------------------------------------------------------------|
-| Run `oc login` as an administrator on the target OpenShift cluster before running the following steps.|
-
-
+| Run `oc login` as an administrator on the target OpenShift cluster before running the following steps, or use the `--kubepwd` and `--openshift` flags to log in as kubeadmin automatically.|
 
 ```bash
 # STEP 1: Install Dev Spaces next
 git submodule init && git submodule update && git -C devspaces checkout devspaces-3-rhel-8 &&
 cd devspaces/product && ./installDevSpacesFromLatestIIB.sh --next
+```
 
+| :steam_locomotive: NOTE 1     |
+|-------------------------------------------------------------------------------------------------------|
+| Using `--next` will disable default catalog sources, but you can re-enable them after installation with the following command:
+`oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/disableAllDefaultSources", "value": false}]'`|
+
+| :ship: NOTE 2                                                                                        |
+|-------------------------------------------------------------------------------------------------------|
+| If you want to install the **latest** stable release-in-progress (instead of the **next** CI build), you can use `./installDevSpacesFromLatestIIB.sh --latest`.|
+
+```bash
 # STEP 2: Day one configurations
 # Create OpenShift unprivileged user (can be skipped if such a user already exist) 
 ./1-create-unprivileged-user.sh
