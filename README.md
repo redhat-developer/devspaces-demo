@@ -23,7 +23,7 @@ cd devspaces/product && ./installDevSpacesFromLatestIIB.sh --next
 | Using `--next` will disable default catalog sources, but you can re-enable them after installation with the following command:
 `oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/disableAllDefaultSources", "value": false}]'`|
 
-| :ship: NOTE 2                                                                                        |
+| :ship: NOTE                                                                                        |
 |-------------------------------------------------------------------------------------------------------|
 | If you want to install the **latest** stable release-in-progress (instead of the **next** CI build), you can use `./installDevSpacesFromLatestIIB.sh --latest`.|
 
