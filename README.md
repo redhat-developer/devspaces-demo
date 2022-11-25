@@ -14,13 +14,17 @@ Pre-requisites: `oc`, `jq` and `git` should be pre-installed and you should be l
 |-------------------------------------------------------------------------------------------------------|
 | Run `oc login` as an administrator on the target OpenShift cluster before running the following steps.|
 
-
-
 ```bash
 # STEP 1: Install Dev Spaces next
 git submodule init && git submodule update && git -C devspaces checkout devspaces-3-rhel-8 &&
-cd devspaces/product && ./installDevSpacesFromLatestIIB.sh --next
+cd devspaces/product && ./installDevSpacesFromLatestIIB.sh --next && \
+oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/disableAllDefaultSources", "value": false}]' # re-enable default catalog sources
 
+| :ship: NOTE                                                                                        |
+|-------------------------------------------------------------------------------------------------------|
+| If you want to install the **latest** stable release-in-progress (instead of the **next** CI build), you can use `./installDevSpacesFromLatestIIB.sh --latest`.|
+
+```bash
 # STEP 2: Day one configurations
 # Create OpenShift unprivileged user (can be skipped if such a user already exist) 
 ./1-create-unprivileged-user.sh
