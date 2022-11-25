@@ -10,7 +10,7 @@ Pre-requisites: `oc`, `jq` and `git` should be pre-installed and you should be l
 
 | :warning: WARNING                                                                                     |
 |-------------------------------------------------------------------------------------------------------|
-| Run `oc login` as an administrator on the target OpenShift cluster before running the following steps, or use the `--kubepwd` and `--openshift` flags to log in as kubeadmin automatically.|
+| Run `oc login` as an administrator on the target OpenShift cluster before running the following steps.|
 
 ```bash
 # STEP 1: Install Dev Spaces next
