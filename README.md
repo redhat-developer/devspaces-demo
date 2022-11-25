@@ -15,13 +15,8 @@ Pre-requisites: `oc`, `jq` and `git` should be pre-installed and you should be l
 ```bash
 # STEP 1: Install Dev Spaces next
 git submodule init && git submodule update && git -C devspaces checkout devspaces-3-rhel-8 &&
-cd devspaces/product && ./installDevSpacesFromLatestIIB.sh --next
-```
-
-| :steam_locomotive: NOTE 1     |
-|-------------------------------------------------------------------------------------------------------|
-| Using `--next` will disable default catalog sources, but you can re-enable them after installation with the following command:
-`oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/disableAllDefaultSources", "value": false}]'`|
+cd devspaces/product && ./installDevSpacesFromLatestIIB.sh --next && \
+oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/disableAllDefaultSources", "value": false}]' # re-enable default catalog sources
 
 | :ship: NOTE                                                                                        |
 |-------------------------------------------------------------------------------------------------------|
