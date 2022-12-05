@@ -71,12 +71,12 @@ Depending on the cluster setup, if a `LimitRange` exists in the user namespace, 
 
 ```
 export USER_NAMESPACE="USER NAMESPACE HERE"
-./increase-namepsace-quotas.sh
+./increase-resource-range.sh
 ```
 
 # Run the demo
 
-For STEP 3 and STEP 4, this [demo microservice project](https://github.com/dkwon17/quarkus-api-example/tree/devspaces) can be forked and used. When forking, confirm that the `devspaces` branch is copied to the fork.
+For STEP 3 and STEP 4, this [demo microservice project](https://github.com/dkwon17/quarkus-api-example/tree/devspaces) can be forked and used. When forking, confirm that the `devspaces-demo` branch is copied to the fork.
 
 ## STEP 1 - Start an IDE with a link (and show the power of URL parameters)
 
