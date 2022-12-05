@@ -23,7 +23,7 @@ fi
 
 LIMIT_RANGE=$(kubectl get limits -n $USER_NAMESPACE --no-headers -o custom-columns=":metadata.name")
 
-PATCH="{\"spec\":{\"limits\":[{\"type\":\"Container\",\"max\":{\"cpu\":\"4\",\"memory\":\"${NEW_LIMIT}\"}},{\"type\":\"Pod\",\"max\":{\"cpu\":\"4\",\"memory\":\"${NEW_LIMIT}\"}}]}}"
+PATCH="{\"spec\":{\"limits\":[{\"type\":\"Container\",\"max\":{\"cpu\":\"4\",\"memory\":\"${NEW_LIMIT}\"}},{\"type\":\"Pod\",\"max\":{\"cpu\":\"12\",\"memory\":\"${NEW_LIMIT}\"}}]}}"
 
 kubectl patch LimitRange $LIMIT_RANGE \
   --type=merge -p \
