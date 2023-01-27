@@ -21,15 +21,18 @@ EOF
 
 kubectl patch oauth cluster --type='json' -p '[
   {
-    "op":"add","path":"/spec/identityProviders/1",
+    "op":"add","path":"/spec",
     "value":{
-      "name":"htpasswd",
-      "mappingMethod":"claim",
-      "type":"HTPasswd",
-      "htpasswd":
-        {"fileData":
-          {"name":"htpass-secret"}
-        }
+      "identityProviders": [
+         {  "name":"htpasswd",
+            "mappingMethod":"claim",
+            "type":"HTPasswd",
+            "htpasswd":
+            { "fileData":
+               { "name":"htpass-secret"}
+            }
+         }
+      ]
     }
   }
 ]'
