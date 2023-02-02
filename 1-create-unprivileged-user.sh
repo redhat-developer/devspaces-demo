@@ -19,20 +19,20 @@ data:
   htpasswd: ${htpwd_encoded}
 EOF
 
-kubectl patch oauth cluster --type='json' -p '[
-  {
-    "op":"add","path":"/spec",
-    "value":{
-      "identityProviders": [
-         {  "name":"htpasswd",
-            "mappingMethod":"claim",
-            "type":"HTPasswd",
-            "htpasswd":
-            { "fileData":
-               { "name":"htpass-secret"}
-            }
-         }
-      ]
-    }
-  }
-]'
+IP_NAME=devspaces-demo
+kubectl get oauths cluster -o json | \
+  jq 'if .spec.identityProviders and (.spec.identityProviders|any(.name == "'"$IP_NAME"'")) 
+    then . 
+    else .spec.identityProviders += [{
+      "name":"'"$IP_NAME"'",
+      "mappingMethod":"claim",
+      "type":"HTPasswd",
+      "htpasswd":{
+        "fileData":{
+          "name":"htpass-secret"
+        }
+      }
+    }]
+    end' | \
+  kubectl apply -f -
+
