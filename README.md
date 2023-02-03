@@ -16,9 +16,17 @@ Pre-requisites: `oc`, `jq` and `git` should be pre-installed and you should be l
 
 ```bash
 # STEP 1: Install Dev Spaces next
-git submodule init && git submodule update && git -C devspaces checkout devspaces-3-rhel-8 &&
-cd devspaces/product && ./installDevSpacesFromLatestIIB.sh --next && \
-oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/disableAllDefaultSources", "value": false}]' # re-enable default catalog sources
+DSC_VER="3.6.0"; \
+DSC_TGZ="devspaces-${DSC_VER}-quay-dsc-linux-x64.tar.gz"; \
+DSC_TGZ_URL="https://github.com/redhat-developer/devspaces-chectl/releases/download/${DSC_VER}-CI-dsc-assets/${DSC_TGZ}"; \
+TEMP_DIR="$(mktemp -d)"; \
+cd "${TEMP_DIR}"; \
+curl -sSLO "${DSC_TGZ_URL}"; \
+tar -zxvf "${DSC_TGZ}"; \
+mv dsc $HOME/; \
+cd; rm -fr "${TEMP_DIR}"; \
+export PATH=${PATH}:$HOME/dsc/bin; \
+dsc server:deploy --olm-channel next
 ```
 
 | :ship: NOTE                                                                                        |
@@ -72,6 +80,13 @@ Depending on the cluster setup, if a `LimitRange` exists in the user namespace, 
 ```
 export USER_NAMESPACE="USER NAMESPACE HERE"
 ./increase-namepsace-quotas.sh
+```
+
+You may want to grant the unprivileged user the authorization to push images to the `openshift` repository of the internal registry:
+
+```bash
+USER="johndoe"
+oc policy add-role-to-user registry-editor -n openshift ${USER}
 ```
 
 # Run the demo
