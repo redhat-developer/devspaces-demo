@@ -35,4 +35,3 @@ kubectl get oauths cluster -o json | \
     }]
     end' | \
   kubectl apply -f -
-
