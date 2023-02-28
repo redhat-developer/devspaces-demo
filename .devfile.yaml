@@ -16,10 +16,7 @@ commands:
       component: tooling-container
       commandLine: | 
         [[ "$(oc whoami)" =~ ^kube:admin$ ]] || (echo "You need to login as kubeadmin" && false) &&
-        git submodule init && git submodule update && \
-        git -C devspaces checkout devspaces-3-rhel-8 && \
-        cd devspaces/product && \
-        ./installDevSpacesFromLatestIIB.sh --next
+        dsc server:deploy --olm-channel=fast
   - id: 2-day1-configs
     exec:
       label: "2. Create users, change inactivity timeout and enable container build capabilities, GitHub OAuth and image puller"
