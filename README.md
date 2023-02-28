@@ -16,14 +16,27 @@ Pre-requisites: `oc`, `jq` and `git` should be pre-installed and you should be l
 
 ```bash
 # STEP 1: Install Dev Spaces next
-git submodule init && git submodule update && git -C devspaces checkout devspaces-3-rhel-8 &&
-cd devspaces/product && ./installDevSpacesFromLatestIIB.sh --next && \
-oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/disableAllDefaultSources", "value": false}]' # re-enable default catalog sources
+DSC_HOME=/home/user/.dsc
+TEMP_DIR="$(mktemp -d)"
+DSC_VERSION="3.4.0"
+DSC_ARCH="linux-x64"
+DSC_TGZ="devspaces-${DSC_VERSION}-dsc-${DSC_ARCH}.tar.gz"
+DSC_TGZ_URL="https://github.com/redhat-developer/devspaces-chectl/releases/download/${DSC_VERSION}-GA-dsc-assets/${DSC_TGZ}"
+
+cd "${TEMP_DIR}"
+curl -sSLO "${DSC_TGZ_URL}"
+tar -zxvf "${DSC_TGZ}"
+mv dsc "${DSC_HOME}"
+PATH=${PATH}:${DSC_HOME}/bin
+rm "${DSC_TGZ}"
+cd -
+
+dsc server:deploy --olm-channel=fast
 ```
 
 | :ship: NOTE                                                                                        |
 |-------------------------------------------------------------------------------------------------------|
-| If you want to install the **latest** stable release-in-progress (instead of the **next** CI build), you can use `./installDevSpacesFromLatestIIB.sh --latest`.|
+| If you want to install the **latest** stable release-in-progress (instead of the **next** CI build), you can use `dsc server:deploy`.|
 
 ```bash
 # STEP 2: Day one configurations
