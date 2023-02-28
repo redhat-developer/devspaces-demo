@@ -38,7 +38,12 @@ oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/disab
 # c.f. https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/#setting-up-the-github-oauth-app_che
 export BASE64_GH_OAUTH_CLIENT_ID=<your-id>
 export BASE64_GH_OAUTH_CLIENT_SECRET=<your-secret>
-./4-configure-gh-oauth.sh
+./4-1-configure-gh-oauth.sh
+# Configure Azure DevOPs OAuth
+# c.f. https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-microsoft-azure-devops-services/#setting-up-the-microsoft-azure-devops-services-oauth-app
+export BASE64_AZ_OAUTH_APP_ID=<your-id>
+export BASE64_AZ_OAUTH_CLIENT_SECRET=<your-secret>
+./4-2-configure-az-oauth.sh
 # Enable the Kubernetes Image Puller Operator
 # c.f. https://github.com/che-incubator/kubernetes-image-puller-operator
 ./5-enable-image-puller.sh

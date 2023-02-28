@@ -37,7 +37,7 @@ commands:
         read -p "ENTER Base64 GitHub OAuth Client Secret: " BASE64_GH_OAUTH_CLIENT_SECRET &&
         export BASE64_GH_OAUTH_CLIENT_ID &&
         export BASE64_GH_OAUTH_CLIENT_SECRET &&
-        ./4-configure-gh-oauth.sh &&
+        ./4-1-configure-gh-oauth.sh &&
         ./5-enable-image-puller.sh
   - id: 3-configure-the-image-puller
     exec:
