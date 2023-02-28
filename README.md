@@ -16,20 +16,15 @@ Pre-requisites: `oc`, `jq` and `git` should be pre-installed and you should be l
 
 ```bash
 # STEP 1: Install Dev Spaces next
-DSC_HOME=/home/user/.dsc
-TEMP_DIR="$(mktemp -d)"
-DSC_VERSION="3.5.0"
-DSC_ARCH="linux-x64"
-DSC_TGZ="devspaces-${DSC_VERSION}-dsc-${DSC_ARCH}.tar.gz"
-DSC_TGZ_URL="https://github.com/redhat-developer/devspaces-chectl/releases/download/${DSC_VERSION}-CI-dsc-assets/${DSC_TGZ}"
-
-cd "${TEMP_DIR}"
-curl -sSLO "${DSC_TGZ_URL}"
-tar -zxvf "${DSC_TGZ}"
-mv dsc "${DSC_HOME}"
-PATH=${PATH}:${DSC_HOME}/bin
-rm "${DSC_TGZ}"
-cd -
+DSC_VERSION="3.5.0-CI"; DSC_ARCH="linux-x64"
+DSC_HOME=${HOME}/.dsc; mkdir -p "${DSC_HOME}"
+DSC_TGZ_URL="https://github.com/redhat-developer/devspaces-chectl/releases/download/${DSC_VERSION}-dsc-assets/devspaces-${DSC_VERSION%-*}-dsc-${DSC_ARCH}.tar.gz"
+curl -sSkLo- "${DSC_TGZ_URL}" | tar -zx -C "${DSC_HOME}/" --strip-components 1 
+if [[ -d ${DSC_HOME}/bin ]]; then \
+  export PATH=${PATH%":${DSC_HOME}/bin"}:${DSC_HOME}/bin; echo -n "Installed: "; dsc version; \
+else \
+  echo "An error occurred installing dsc $DSC_VERSION for arch $DSC_ARCH ! Check if ${DSC_TGZ_URL} is a valid file."; \
+fi
 
 dsc server:deploy --olm-channel=next
 ```
