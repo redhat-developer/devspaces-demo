@@ -18,10 +18,10 @@ Pre-requisites: `oc`, `jq` and `git` should be pre-installed and you should be l
 # STEP 1: Install Dev Spaces next
 DSC_HOME=/home/user/.dsc
 TEMP_DIR="$(mktemp -d)"
-DSC_VERSION="3.4.0"
+DSC_VERSION="3.5.0"
 DSC_ARCH="linux-x64"
 DSC_TGZ="devspaces-${DSC_VERSION}-dsc-${DSC_ARCH}.tar.gz"
-DSC_TGZ_URL="https://github.com/redhat-developer/devspaces-chectl/releases/download/${DSC_VERSION}-GA-dsc-assets/${DSC_TGZ}"
+DSC_TGZ_URL="https://github.com/redhat-developer/devspaces-chectl/releases/download/${DSC_VERSION}-CI-dsc-assets/${DSC_TGZ}"
 
 cd "${TEMP_DIR}"
 curl -sSLO "${DSC_TGZ_URL}"
@@ -31,12 +31,12 @@ PATH=${PATH}:${DSC_HOME}/bin
 rm "${DSC_TGZ}"
 cd -
 
-dsc server:deploy --olm-channel=fast
+dsc server:deploy --olm-channel=next
 ```
 
 | :ship: NOTE                                                                                        |
 |-------------------------------------------------------------------------------------------------------|
-| If you want to install the **latest** stable release-in-progress (instead of the **next** CI build), you can use `dsc server:deploy`.|
+| If you want to install the **latest** stable release-in-progress (instead of the **next** CI build), you can use `dsc server:deploy --olm-channel=latest'.|
 
 ```bash
 # STEP 2: Day one configurations
