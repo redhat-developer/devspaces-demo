@@ -8,15 +8,24 @@ components:
       memoryRequest: 256M
       memoryLimit: 1536M
       cpuRequest: 100m
-      cpuLimit: 500m
+      cpuLimit: 1500m
 commands:
   - id: 1-deploy-devspaces
     exec:
       label: "1. Deploy nightly build of Dev Spaces"
       component: tooling-container
-      commandLine: | 
+      commandLine: |
         [[ "$(oc whoami)" =~ ^kube:admin$ ]] || (echo "You need to login as kubeadmin" && false) &&
-        dsc server:deploy --olm-channel=fast
+        DSC_VERSION="3.5.0-CI"; DSC_ARCH="linux-x64"
+        DSC_HOME=${HOME}/.dsc; mkdir -p "${DSC_HOME}"
+        DSC_TGZ_URL="https://github.com/redhat-developer/devspaces-chectl/releases/download/${DSC_VERSION}-dsc-assets/devspaces-${DSC_VERSION%-*}-dsc-${DSC_ARCH}.tar.gz"
+        curl -sSkLo- "${DSC_TGZ_URL}" | tar -zx -C "${DSC_HOME}/" --strip-components 1 
+        if [[ -d ${DSC_HOME}/bin ]]; then \
+          export PATH=${PATH%":${DSC_HOME}/bin"}:${DSC_HOME}/bin; echo -n "Installed: "; dsc version; \
+        else \
+          echo "An error occurred installing dsc $DSC_VERSION for arch $DSC_ARCH ! Check if ${DSC_TGZ_URL} is a valid file."; \
+        fi
+        dsc server:deploy --olm-channel=next --telemetry=off
   - id: 2-day1-configs
     exec:
       label: "2. Create users, change inactivity timeout and enable container build capabilities, GitHub OAuth and image puller"
