@@ -28,7 +28,7 @@ commands:
         dsc server:deploy --olm-channel=next --telemetry=off
   - id: 2-day1-configs
     exec:
-      label: "2. Create users, change inactivity timeout and enable container build capabilities, GitHub OAuth and image puller"
+      label: "2. Create users, change inactivity timeout, enable GitHub OAuth and image puller"
       component: tooling-container
       commandLine:  | 
         [[ "$(oc whoami)" =~ ^kube:admin$ ]] || (echo "You need to login as kubeadmin" && false) &&
@@ -38,13 +38,12 @@ commands:
         OPENSHIFT_USER=duke OPENSHIFT_PASSWORD=duke ./1-create-unprivileged-user.sh && 
         OPENSHIFT_USER=phippy OPENSHIFT_PASSWORD=phippy ./1-create-unprivileged-user.sh &&
         ./2-disable-workspace-idling.sh &&
-        ./3-enable-container-build.sh &&
         read -p "ENTER Base64 GitHub OAuth Client ID: " BASE64_GH_OAUTH_CLIENT_ID &&
         read -p "ENTER Base64 GitHub OAuth Client Secret: " BASE64_GH_OAUTH_CLIENT_SECRET &&
         export BASE64_GH_OAUTH_CLIENT_ID &&
         export BASE64_GH_OAUTH_CLIENT_SECRET &&
-        ./4-1-configure-gh-oauth.sh &&
-        ./5-enable-image-puller.sh
+        ./3-1-configure-gh-oauth.sh &&
+        ./4-enable-image-puller.sh
   - id: 3-configure-the-image-puller
     exec:
       label: "3. Configure the image puller (⚠️ start the workspace in johndoe namespace before running)"
