@@ -39,22 +39,19 @@ dsc server:deploy --olm-channel=next
 ./1-create-unprivileged-user.sh
 # Configure workspace idling timeout (for demo purposes we disable it)
 ./2-disable-workspace-idling.sh
-# Enable container build capabilites 
-# c.f. https://che.eclipseprojects.io/2022/10/10/@mloriedo-building-container-images.html
-./3-enable-container-build.sh
 # Configure GitHub OAuth
 # c.f. https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/#setting-up-the-github-oauth-app_che
 export BASE64_GH_OAUTH_CLIENT_ID=<your-id>
 export BASE64_GH_OAUTH_CLIENT_SECRET=<your-secret>
-./4-1-configure-gh-oauth.sh
+./3-1-configure-gh-oauth.sh
 # Configure Azure DevOPs OAuth
 # c.f. https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-microsoft-azure-devops-services/#setting-up-the-microsoft-azure-devops-services-oauth-app
 export BASE64_AZ_OAUTH_APP_ID=<your-id>
 export BASE64_AZ_OAUTH_CLIENT_SECRET=<your-secret>
-./4-2-configure-az-oauth.sh
+./3-2-configure-az-oauth.sh
 # Enable the Kubernetes Image Puller Operator
 # c.f. https://github.com/che-incubator/kubernetes-image-puller-operator
-./5-enable-image-puller.sh
+./4-enable-image-puller.sh
 ```
 
 Run the following script to pre-pull all the images of a pre-defined workspace (the workspace should be running in the developer namespace):
