@@ -18,8 +18,10 @@ IMAGES=( "${IMAGES[@]}" "${EXTERNAL_IMAGES[@]}" )
 echo "Found ${#EXTERNAL_IMAGES[@]} external images for a total of ${#IMAGES[@]}"
 
 ## 3. from a running workspace
-DEFAULT_DEVELOPER_NAMESPACE="johndoe-devspaces"
-DEVELOPER_NAMESPACE=${DEVELOPER_NAMESPACE:-${DEFAULT_DEVELOPER_NAMESPACE}}
+
+if [ -z ${DEVELOPER_NAMESPACE+x} ]; then
+  read -p "Enter a namespace where a sample workspace is running: " DEVELOPER_NAMESPACE
+fi
 
 echo "Retrieving images from any Pod in ${DEVELOPER_NAMESPACE} namespace"
 RUNNING_WORKSPACE_IMAGES=($(kubectl get pods -n ${DEVELOPER_NAMESPACE} -o json | jq -r '.items[].spec | (.initContainers[].image, .containers[].image)'))

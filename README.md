@@ -1,88 +1,114 @@
-[![Contribute](https://www.eclipse.org/che/contribute.svg)](https://workspaces.openshift.com#https://github.com/che-incubator/devspaces-demo)
-  
-[![Contribute (nightly)](https://img.shields.io/static/v1?label=nightly%20Che&message=for%20maintainers&logo=eclipseche&color=FDB940&labelColor=525C86)](https://che-dogfooding.apps.che-dev.x6e0.p1.openshiftapps.com/#https://github.com/che-incubator/devspaces-demo)
+[![Open](https://img.shields.io/static/v1?label=open%20in&message=developer%20sandbox&logo=eclipseche&color=FDB940&labelColor=525C86)](https://workspaces.openshift.com/#https://github.com/redhat-developer/devspaces-demo/tree/20231122-prep)
 
 ### [Supporting slides](https://docs.google.com/presentation/d/1PUwPsY8TosHMsQT0iMe6zLD4wrd66U_oot2_oSIM9F0/edit?usp=sharing)
 
 # Preparation
 
-You can either `git clone` this repository locally and run the following preparations steps from your terminal OR you can start a Dev Spaces development environment and run the commands from the IDE itself ([start on RH Developer Sandbox](https://workspaces.openshift.com/#https://github.com/che-incubator/devspaces-demo) or [start on the Che team dogfooding instance (internal only)](https://che-dogfooding.apps.che-dev.x6e0.p1.openshiftapps.com/#https://github.com/che-incubator/devspaces-demo)).
+### Create a Developer Sandbox Account if you don't have one yet
 
-Pre-requisites: `oc`, `jq` and `git` should be pre-installed and you should be logged in as an admin of the target OpenShift cluster.
+Follow the instructions on [Red Hat Developer Sandbox web page](https://developers.redhat.com/developer-sandbox) to create an account. This will allow you to start a cloud development environment running this repository.
 
-| :warning: WARNING                                                                                     |
-|-------------------------------------------------------------------------------------------------------|
-| Run `oc login` as an administrator on the target OpenShift cluster before running the following steps.|
+### Provision an OpenShift cluster and copy the cluster API URL and token
+
+The cluster should run OpenShift 4.10 or later. And Dev Spaces should not be installed there. Once you have access to it **as an admin**, copy the API URL and token:
+
+| Select "Copy login command"   |  Copy OpenShift API URL and token 
+:------------------------------:|:--------------------------------------:
+![alt text](images/open-login-command.png "Open \"Copy login command\"") | ![alt text](images/copy-api-url-and-token.png "Copy URL and token")
+
+
+### Open this repository in a cloud development environment
+
+Once you are done, click the badge ![Open](https://img.shields.io/static/v1?label=open%20in&message=developer%20sandbox&logo=eclipseche&color=FDB940&labelColor=525C86) at the top of this page. After a few seconds you should see VS Code running in your browser with the source code of this repository.
+
+| CDE Startup   |  CDE Running VS Code
+:------------------------------:|:--------------------------------------:
+![alt text](images/startup.png "CDE Startup") | ![alt text](images/vscode.png "CDE Running VS Code")
+
+The cloud development environment that you started runs in a container with all the pre-requisties to run this demo. 
+
+<!-- VS Code has some predefined "Devfile" tasks commands that can be used to run this demo steps.
+
+|  Run Tasks Menu  |  Devfile Tasks
+:------------------------------:|:--------------------------------------:
+![alt text](images/run-task-menu.png "Run Tasks Menu") | ![alt text](images/devfile-tasks.png "Devfile Tasks") -->
+
+
+# Dev Spaces Deployment
+
+Open a terminal in VS Code (`Terminal -> New Terminal`) and execute the following commands:
+```bash
+# Login to your OpenShift cluster
+# When prompted provide the API URL and Token retrieved in the preparation section
+./commands/login.sh 
+
+# Install OpenShift Dev Spaces CLI (`dsc`)
+./commands/download-cli.sh
+
+# Deploy OpenShift Dev Spaces
+./commands/deploy.sh latest
+```
+
+Congratulations, you have just deployed OpenShift Dev Spaces. Follow the "Users Dashboard" link to log in to Dev Spaces.
+
+|  `dsc server:deploy`  |  Users Dashboard
+:------------------------------:|:--------------------------------------:
+![alt text](images/deploy-successful.png "dsc server:deploy") | ![alt text](images/dashboard.png "Users dashboard")
+
+# Dev Spaces Configuration
+
+### Configure [GitHub OAuth](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.9/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-github) flow (or [Bitbucket](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.9/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-a-bitbucket-server), [Gitlab](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.9/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-gitlab), [AzureDevops](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.9/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-microsoft-azure-devops-services))
 
 ```bash
-# STEP 1: Install Dev Spaces next
-DSC_VERSION="3.5.0-CI"; DSC_ARCH="linux-x64"
-DSC_HOME=${HOME}/.dsc; mkdir -p "${DSC_HOME}"
-DSC_TGZ_URL="https://github.com/redhat-developer/devspaces-chectl/releases/download/${DSC_VERSION}-dsc-assets/devspaces-${DSC_VERSION%-*}-dsc-${DSC_ARCH}.tar.gz"
-curl -sSkLo- "${DSC_TGZ_URL}" | tar -zx -C "${DSC_HOME}/" --strip-components 1 
-if [[ -d ${DSC_HOME}/bin ]]; then \
-  export PATH=${PATH%":${DSC_HOME}/bin"}:${DSC_HOME}/bin; echo -n "Installed: "; dsc version; \
-else \
-  echo "An error occurred installing dsc $DSC_VERSION for arch $DSC_ARCH ! Check if ${DSC_TGZ_URL} is a valid file."; \
-fi
-
-dsc server:deploy --olm-channel=next
+./commands/configure-gh-oauth.sh
 ```
 
-| :ship: NOTE                                                                                        |
-|-------------------------------------------------------------------------------------------------------|
-| If you want to install the **latest** stable release-in-progress (instead of the **next** CI build), you can use `dsc server:deploy --olm-channel=latest'.|
+### Patch the [CheCluster Custom Resource](https://doc.crds.dev/github.com/eclipse-che/che-operator/org.eclipse.che/CheCluster/v2)
+
+The following scripts will patch the `CheCluster` custom resource named `devspaces` in the `openshift-devspaces` namespace.
 
 ```bash
-# STEP 2: Day one configurations
-# Create OpenShift unprivileged user (can be skipped if such a user already exist) 
-./1-create-unprivileged-user.sh
-# Configure workspace idling timeout (for demo purposes we disable it)
-./2-disable-workspace-idling.sh
-# Configure GitHub OAuth
-# c.f. https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/#setting-up-the-github-oauth-app_che
-export BASE64_GH_OAUTH_CLIENT_ID=<your-id>
-export BASE64_GH_OAUTH_CLIENT_SECRET=<your-secret>
-./3-1-configure-gh-oauth.sh
-# Configure Azure DevOPs OAuth
-# c.f. https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-microsoft-azure-devops-services/#setting-up-the-microsoft-azure-devops-services-oauth-app
-export BASE64_AZ_OAUTH_APP_ID=<your-id>
-export BASE64_AZ_OAUTH_CLIENT_SECRET=<your-secret>
-./3-2-configure-az-oauth.sh
-# Enable the Kubernetes Image Puller Operator
-# c.f. https://github.com/che-incubator/kubernetes-image-puller-operator
-./4-enable-image-puller.sh
+# Disable inactive cloud development environment idling
+./commands/disable-idling.sh
+# Change the default development container to be upstream UDI
+./commands/change-dev-container.sh quay.io/devfile/universal-developer-image
+# Change the default IDE
+./commands/change-default-ide.sh
+# Use open-vsx.org rather than the embedded open-vsx registry
+./commands/use-open-vsx.org.sh
 ```
 
-Run the following script to pre-pull all the images of a pre-defined workspace (the workspace should be running in the developer namespace):
+A lot more can be configured using the CheCluster custom resource. Try editing the CR from the OpenShift Console.
+
+### Enable the [Kubernetes Image Puller](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.9/html/administration_guide/configuring-devspaces#caching-images-for-faster-workspace-start)
 
 ```bash
-# export DEVELOPER_NAMESPACE="${OPENSHIFT_USER}-devspaces" <== if not set 'johndoe-devspaces' is used
-./configure-image-puller.sh
+./commands/enable-image-puller.sh
 ```
 
-
-Additional commands to patch Dev Spaces to use upstream images:
+Run the following script to configure the [Kubernetes Image Puller](https://github.com/che-incubator/kubernetes-image-puller-operator) to pre-pull all the images of a pre-defined workspace (the workspace should be running in the developer namespace):
 
 ```bash
-# Use upstream VS Code
-export IDE_DEFINITION="https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-code/insiders/devfile.yaml"
-./change-default-ide.sh
-
-# Use upstream UDI
-export UDI_IMAGE="quay.io/devspaces/udi-rhel8:3.3"
-./change-default-component.sh
-
-# Use upstream nightly DevWorkspace operator build
-./patch-dw-subcription.sh
+./commands/configure-image-puller.sh
 ```
 
-Depending on the cluster setup, if a `LimitRange` exists in the user namespace, you may have to adjust user namespace resource quotas to start workspaces with VS Code and IntelliJ:
+### Configure the Getting Started samples in Users dashboard
 
+[Link to the documentation article](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.9/html/administration_guide/configuring-devspaces#configuring-getting-started-samples)
+
+### Additional (optional) customizations
+
+```bash
+# Use nightly DevWorkspace operator build
+./commands/additionals/patch-dw-subcription.sh
+# Sometimes increasing the developer namespace resource
+# quotas is required (especially to run IntelliJ)
+./commands/additionals/increase-resource-range.sh
 ```
-export USER_NAMESPACE="USER NAMESPACE HERE"
-./increase-resource-range.sh
-```
+
+### Airgap specific customization
+
+OpenShift Dev Spaces is designed to run on restricted networks. The documentation article to install OpenShift Dev Spaces in such a network can be found [here](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.9/html/administration_guide/installing-devspaces#installing-devspaces-in-a-restricted-environment).
 
 # Run the demo
 
