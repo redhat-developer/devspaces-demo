@@ -2,7 +2,11 @@
 set -o nounset
 set -o errexit
 
-UDI_IMAGE=${UDI_IMAGE:-quay.io/devspaces/udi-rhel8:3.3}
+if [ -z ${1+x} ]; then
+    UDI_IMAGE=${UDI_IMAGE:-quay.io/devspaces/udi-rhel8:latest}
+else
+    UDI_IMAGE=${1}
+fi
 
 PATCH='{"spec":{"devEnvironments":{"defaultComponents":[{"name": "universal-developer-image", "container": {"image": "' 
 PATCH+="${UDI_IMAGE}"

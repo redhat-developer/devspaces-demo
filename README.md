@@ -1,164 +1,149 @@
-[![Contribute](https://www.eclipse.org/che/contribute.svg)](https://workspaces.openshift.com#https://github.com/che-incubator/devspaces-demo)
-  
-[![Contribute (nightly)](https://img.shields.io/static/v1?label=nightly%20Che&message=for%20maintainers&logo=eclipseche&color=FDB940&labelColor=525C86)](https://che-dogfooding.apps.che-dev.x6e0.p1.openshiftapps.com/#https://github.com/che-incubator/devspaces-demo)
+[![Open](https://img.shields.io/static/v1?label=open%20in&message=developer%20sandbox&logo=eclipseche&color=FDB940&labelColor=525C86)](https://workspaces.openshift.com/#https://github.com/redhat-developer/devspaces-demo/tree/20231122-prep)
 
-### [Supporting slides](https://docs.google.com/presentation/d/1PUwPsY8TosHMsQT0iMe6zLD4wrd66U_oot2_oSIM9F0/edit?usp=sharing)
+# OpenShift Dev Spaces Workshop
 
-# Preparation
+[Supporting slides](https://docs.google.com/presentation/d/1PUwPsY8TosHMsQT0iMe6zLD4wrd66U_oot2_oSIM9F0/edit?usp=sharing)
 
-You can either `git clone` this repository locally and run the following preparations steps from your terminal OR you can start a Dev Spaces development environment and run the commands from the IDE itself ([start on RH Developer Sandbox](https://workspaces.openshift.com/#https://github.com/che-incubator/devspaces-demo) or [start on the Che team dogfooding instance (internal only)](https://che-dogfooding.apps.che-dev.x6e0.p1.openshiftapps.com/#https://github.com/che-incubator/devspaces-demo)).
+In this repository we provides the instructions to run an OpenShift Dev Spaces Workshop. It has 3 Admin tasks and 2 user tasks:
 
-Pre-requisites: `oc`, `jq` and `git` should be pre-installed and you should be logged in as an admin of the target OpenShift cluster.
+#### ADMIN TASKS:
+1. **Preparation** - Instructions to setup an OpenShift cluster where we will install OpenShift Dev Spaces and to start a Cloud Development Environment that has some scripts to facilitate the deployment and configuration of OpenShift Dev Spaces.  
+2. **Dev Spaces Deployment** - Steps to deploy the latest version of OpenShift Dev Spaces in the cluster setup before.
+3. **Dev Spaces Configuration** - Day 2 tasks for an OpenShift Dev Spaces administrator.
 
-| :warning: WARNING                                                                                     |
-|-------------------------------------------------------------------------------------------------------|
-| Run `oc login` as an administrator on the target OpenShift cluster before running the following steps.|
+#### USER TASKS:
+1. **Customization of a Cloud Development Environment (CDE)** - How to customize the tools and the resources and of an OpenShift Dev Spaces CDE.  
+2. **Managing CDEs using the DevWorkspace API** - How to programattically manage Dev Spaces cloud development environments.
+
+## ADMIN TASK 1: Preparation
+
+### 1. Provision an OpenShift cluster and copy the cluster API URL and token
+
+The cluster should run OpenShift 4.10 or later. Make sure that Dev Spaces is not already installed in the cluster (the goal is to install it now). Once you have access to the cluster **as an admin**, copy the API URL and token:
+
+| Select "Copy login command"   |  Copy OpenShift API URL and token 
+:------------------------------:|:--------------------------------------:
+![alt text](images/open-login-command.png "Open \"Copy login command\"") | ![alt text](images/copy-api-url-and-token.png "Copy URL and token")
+
+### 2. Create a Developer Sandbox Account if you don't have one yet
+
+Follow the instructions on [Red Hat Developer Sandbox web page](https://developers.redhat.com/developer-sandbox) to create an account. This will allow you to start a cloud development environment running this repository.
+
+### 3. Open this git repository (devspaces-demo)
+
+Click the badge ![Open](https://img.shields.io/static/v1?label=open%20in&message=developer%20sandbox&logo=eclipseche&color=FDB940&labelColor=525C86) at the top of this page. After a few seconds you should see VS Code running in your browser with the source code of this repository.
+
+| CDE Startup   |  CDE Running VS Code
+:------------------------------:|:--------------------------------------:
+![alt text](images/startup.png "CDE Startup") | ![alt text](images/vscode.png "CDE Running VS Code")
+
+The cloud development environment that you started runs has all the pre-requisties to run this demo. 
+
+<!-- VS Code has some predefined "Devfile" tasks commands that can be used to run this demo steps.
+
+|  Run Tasks Menu  |  Devfile Tasks
+:------------------------------:|:--------------------------------------:
+![alt text](images/run-task-menu.png "Run Tasks Menu") | ![alt text](images/devfile-tasks.png "Devfile Tasks") -->
+
+
+## ADMIN TASK 2: Dev Spaces Deployment
+
+From Visual Studio Code running in your browser, open a terminal (`Terminal -> New Terminal`) and execute the following commands:
+```bash
+# Login to your OpenShift cluster. When prompted 
+# provide the API URL and Token retrieved in the 
+# preparation section
+./commands/login.sh 
+
+# Install OpenShift Dev Spaces CLI (`dsc`)
+./commands/download-cli.sh
+
+# Deploy OpenShift Dev Spaces
+./commands/deploy.sh latest
+```
+
+Congratulations, you have just deployed OpenShift Dev Spaces. Follow the "Users Dashboard" link to log in to Dev Spaces.
+
+|  `dsc server:deploy`  |  Users Dashboard
+:------------------------------:|:--------------------------------------:
+![alt text](images/deploy-successful.png "dsc server:deploy") | ![alt text](images/dashboard.png "Users dashboard")
+
+## ADMIN TASK 3: Dev Spaces Configuration
+
+### 1. Configure [GitHub OAuth](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.9/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-github) flow (or [Bitbucket](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.9/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-a-bitbucket-server), [Gitlab](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.9/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-gitlab), [AzureDevops](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.9/html/administration_guide/configuring-devspaces#configuring-oauth-2-for-microsoft-azure-devops-services))
+
+With OAuth, Dev Spaces can automatically configure Cloud Development Environments of the developers with their git credentials. This capability is not enabled by default but has to be configured by an administrator. 
+
+The following comand will guide you through the configuration of a GitHub OAuth application for Dev Spaces:
 
 ```bash
-# STEP 1: Install Dev Spaces next
-DSC_VERSION="3.5.0-CI"; DSC_ARCH="linux-x64"
-DSC_HOME=${HOME}/.dsc; mkdir -p "${DSC_HOME}"
-DSC_TGZ_URL="https://github.com/redhat-developer/devspaces-chectl/releases/download/${DSC_VERSION}-dsc-assets/devspaces-${DSC_VERSION%-*}-dsc-${DSC_ARCH}.tar.gz"
-curl -sSkLo- "${DSC_TGZ_URL}" | tar -zx -C "${DSC_HOME}/" --strip-components 1 
-if [[ -d ${DSC_HOME}/bin ]]; then \
-  export PATH=${PATH%":${DSC_HOME}/bin"}:${DSC_HOME}/bin; echo -n "Installed: "; dsc version; \
-else \
-  echo "An error occurred installing dsc $DSC_VERSION for arch $DSC_ARCH ! Check if ${DSC_TGZ_URL} is a valid file."; \
-fi
-
-dsc server:deploy --olm-channel=next
+./commands/configure-gh-oauth.sh
 ```
 
-| :ship: NOTE                                                                                        |
-|-------------------------------------------------------------------------------------------------------|
-| If you want to install the **latest** stable release-in-progress (instead of the **next** CI build), you can use `dsc server:deploy --olm-channel=latest'.|
+
+### 2. Patch the [CheCluster Custom Resource](https://doc.crds.dev/github.com/eclipse-che/che-operator/org.eclipse.che/CheCluster/v2)
+
+The Kubernetes Custom Resource Definition `CheCluster` is created by the Dev Spaces operator. Administrators should edit a `CheCluster` Custom Resource to configuration Dev Spaces.
+
+The following scripts will patch the `CheCluster` custom resource named `devspaces` in the `openshift-devspaces` namespace.
 
 ```bash
-# STEP 2: Day one configurations
-# Create OpenShift unprivileged user (can be skipped if such a user already exist) 
-./1-create-unprivileged-user.sh
-# Configure workspace idling timeout (for demo purposes we disable it)
-./2-disable-workspace-idling.sh
-# Configure GitHub OAuth
-# c.f. https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/#setting-up-the-github-oauth-app_che
-export BASE64_GH_OAUTH_CLIENT_ID=<your-id>
-export BASE64_GH_OAUTH_CLIENT_SECRET=<your-secret>
-./3-1-configure-gh-oauth.sh
-# Configure Azure DevOPs OAuth
-# c.f. https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-microsoft-azure-devops-services/#setting-up-the-microsoft-azure-devops-services-oauth-app
-export BASE64_AZ_OAUTH_APP_ID=<your-id>
-export BASE64_AZ_OAUTH_CLIENT_SECRET=<your-secret>
-./3-2-configure-az-oauth.sh
-# Enable the Kubernetes Image Puller Operator
-# c.f. https://github.com/che-incubator/kubernetes-image-puller-operator
-./4-enable-image-puller.sh
+# Disable inactive cloud development environment idling
+./commands/disable-idling.sh
+# Change the default development container to be upstream UDI
+./commands/change-dev-container.sh quay.io/devfile/universal-developer-image
+# Change the default IDE
+./commands/change-default-ide.sh
+# Use open-vsx.org rather than the embedded open-vsx registry
+./commands/use-open-vsx.org.sh
 ```
 
-Run the following script to pre-pull all the images of a pre-defined workspace (the workspace should be running in the developer namespace):
+NOTE: A lot more can be configured using the CheCluster custom resource. Try editing the CR with the OpenShift Console editor that has code completion.
+
+### 3. Enable the [Kubernetes Image Puller](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.9/html/administration_guide/configuring-devspaces#caching-images-for-faster-workspace-start)
+
+The Kuberentes Image Puller operator helps making the startup of Dev Spaces Cloud Development Environments faster. Run the following script to deploy this operator: 
 
 ```bash
-# export DEVELOPER_NAMESPACE="${OPENSHIFT_USER}-devspaces" <== if not set 'johndoe-devspaces' is used
-./configure-image-puller.sh
+./commands/enable-image-puller.sh
 ```
 
-
-Additional commands to patch Dev Spaces to use upstream images:
+Run the following script to configure the [Kubernetes Image Puller](https://github.com/che-incubator/kubernetes-image-puller-operator) to pre-pull all the images of a specific OpenShift Dev Spaces workspace (the workspace should be running in the developer namespace):
 
 ```bash
-# Use upstream VS Code
-export IDE_DEFINITION="https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-code/insiders/devfile.yaml"
-./change-default-ide.sh
-
-# Use upstream UDI
-export UDI_IMAGE="quay.io/devspaces/udi-rhel8:3.3"
-./change-default-component.sh
-
-# Use upstream nightly DevWorkspace operator build
-./patch-dw-subcription.sh
+./commands/configure-image-puller.sh
 ```
 
-Depending on the cluster setup, if a `LimitRange` exists in the user namespace, you may have to adjust user namespace resource quotas to start workspaces with VS Code and IntelliJ:
+### 4. Configure the Getting Started samples in Users dashboard
+
+[Link to the documentation article](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.9/html/administration_guide/configuring-devspaces#configuring-getting-started-samples)
+
+### 5. Additional (optional) customizations
+
+```bash
+# Use nightly DevWorkspace operator build
+./commands/additionals/patch-dw-subcription.sh
+# Sometimes increasing the developer namespace resource
+# quotas is required (especially to run IntelliJ)
+./commands/additionals/increase-resource-range.sh
+```
+
+### 6. Airgap specific customization
+
+OpenShift Dev Spaces is designed to run on restricted networks. The documentation article to install OpenShift Dev Spaces in such a network can be found [here](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.9/html/administration_guide/installing-devspaces#installing-devspaces-in-a-restricted-environment).
+
+## USER TASK 1: Customization of a Cloud Development Environment (CDE)
+
+Install the “Try in web IDE” browser extension [for Chrome](https://chrome.google.com/webstore/detail/try-in-dev-spaces/gbookaeilomckmoofeocnkfidfeendan), [Safari](https://apps.apple.com/us/app/try-in-dev-spaces/id6446597744) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/try-in-dev-spaces) and use it to open the following Git repository:
 
 ```
-export USER_NAMESPACE="USER NAMESPACE HERE"
-./increase-resource-range.sh
+https://github.com/l0rd/rails-sample. 
 ```
 
-# Run the demo
+This repository will help us to iteratively customize a Cloud Development Environment. Follow the instructions [in this blog post](https://che.eclipseprojects.io/2024/02/05/@mario.loriedo-cde-customization.html).
 
-For STEP 3 and STEP 4, this [demo microservice project](https://github.com/dkwon17/quarkus-api-example/tree/devspaces) can be forked and used. When forking, confirm that the `devspaces-demo` branch is copied to the fork.
+## USER TASK 2: Managing CDEs using DevWorkspaces
 
-## STEP 1 - Start an IDE with a link (and show the power of URL parameters)
+Cloud development environment can be [managed (created, updated and deleted) using the Kubernetes API](https://eclipse.dev/che/docs/stable/end-user-guide/managing-workspaces-with-apis/).
 
-- Start an empty VS Code workspace
-- Start a workspace pre-fixing a GitHub repository URL with the Dev Spaces URL
-- Use the che-editor parameter
-  - To start a project with IntelliJ: `{CHE_HOST}/#{GIT_PROJECT_URL}?che-editor=che-incubator/che-idea/latest`
-- Switch branch using a different URL
-
-## STEP 2 - Use OAuth flow to automatically configure git
-
-Once Dev Spaces has been authorized to get access to GitHub information:
-
-- Opening a private repository works out of the box
-- `git commit && git push` works out of the box
-
-NOTE: The GitHub OAuth prompt will appear when starting a workspace with a GitHub repository in STEP 1.
-
-NOTE: After accepting the OAuth prompt, to reset the OAuth flow so that the prompt appears again:
-
-1. Delete the `devworkspace-merged-git-credentials`, `git-credentials-secret-*`, and `personal-access-token-*` secrets in the user namespace
-2. Go to `https://github.com/settings/applications`, and revoke access for the OAuth app
-
-## STEP 3 - Test your application on Kubernetes (no need to oc login)
-
-- `oc apply -f deployment.yaml` works out of the box to test the application
-- To test changes a user can build (`mvn clean install`), push to local (`podman push`) and update (`oc rollout restart deploy`)  
-
-### If using the forked demo project:
-- Start a workspace from the `devspaces` branch.
-- Run the build (`Package` task).
-- Build and push the application image to the OpenShift local registry by running the commands from the following tasks in this order: `Build Image`, `Login to local OpenShift registry`, `Push Image`.
-- Deploy the application (Deployments, Services, etc.) with `oc apply -f template/app.yaml`
-- Test the `/food` GET endpoint by running `curl -i quarkus-api-example/food` which returns all resources from the PostgreSQL database.
-- To deploy and test subsequent changes users can run `Package`, `Build Image`, `Push Image` again, then run `oc rollout restart deploy quarkus-api-example`
-
-This example shows ability to build, package, deploy and test applications from within the workspace.
-
-## STEP 4 - Add a database to your development environment (using a devfile)
-- Edit the workspace configuration adding a postgres container component to the devfile (`git commit && git push`)
-- Delete the workspace and restart it using the factory link
-
-### If using the forked demo project:
-- To show it is possible to run the application within the workspace pod with a PostgreSQL container (in the same workspace pod), add the following container definition to the `components` section of the devfile using the VS Code editor:
-    ```
-    - name: postgresql
-    container:
-        image: 'quay.io/centos7/postgresql-13-centos7@sha256:994f5c622e2913bda1c4a7fa3b0c7e7f75e7caa3ac66ff1ed70ccfe65c40dd75'
-        env:
-        - name: POSTGRESQL_USER
-            value: user
-        - name: POSTGRESQL_PASSWORD
-            value: password
-        - name: POSTGRESQL_DATABASE
-            value: food_db
-        - name: PGDATA
-            value: /tmp/pgdata
-    ```
-- Run `git add devfile.yaml`. Then, commit and push to the fork.
-- Stop the current workspace and start a new workspace with the updated devfile, and wait until the new workspace starts.
-- To run the application, run the command from the `Start Development mode (Hot reload + debug)` task. This runs a Maven goal that runs the Quarkus project in [Dev mode](https://quarkus.io/guides/getting-started#development-mode).
-- Verify that the application is running by clicking `Open` on the `Listening on port 8080` VS Code notification.
-
-This example shows that dependencies needed for development (in this case, the PostgreSQL database) is available within the workspace pod by adding new components in the devfile.
-
-## STEP 5 - Restricted network support (optional)
-
-## STEP 6 - Image puller / ephemeral storage for faster workspaces startup (optional)
-
-## STEP 7 - Monitoring
-
-# Cleanup
-
-```
-```
+Follow the steps in [this Git repository README file](https://github.com/l0rd/devworkspace-demo).
